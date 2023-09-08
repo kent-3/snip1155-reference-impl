@@ -30,7 +30,7 @@ use crate::{
         permissions::{Permission, new_permission, update_permission, may_load_any_permission,},
         txhistory::{store_transfer, store_mint, store_burn, append_new_owner, may_get_current_owner,}, 
         metadata::Metadata, 
-        expiration::Expiration, blockinfo_w,  
+        expiration::Expiration,
     },
     receiver::Snip1155ReceiveMsg, 
 };
@@ -47,9 +47,6 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    // save latest block info. not necessary once we migrate to CosmWasm v1.0 
-    blockinfo_w(deps.storage).save(&env.block)?;
-
     // set admin. If `has_admin` == None => no admin. 
     // If `has_admin` == true && msg.admin == None => admin is the instantiator
     let admin = match msg.has_admin {
@@ -111,10 +108,6 @@ pub fn execute(
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> StdResult<Response> {
-    // allows approx latest block info to be available for queries. Important to enforce
-    // allowance expiration. Remove this after BlockInfo becomes available to queries
-    blockinfo_w(deps.storage).save(&env.block)?;
-
     let response = match msg {
         ExecuteMsg::CurateTokenIds {
             initial_tokens,
